@@ -1,0 +1,693 @@
+// CONSTRAINT creation
+// -------------------
+//
+// Creating node uniqueness constraints, ensuring no duplicates for the given node label and ID property exist in the database. This also ensures no duplicates are introduced in future.
+//
+CREATE CONSTRAINT `Title_Painting_uniq` IF NOT EXISTS
+FOR (n: `Painting`)
+REQUIRE (n.`Title`) IS UNIQUE;
+CREATE CONSTRAINT `Artist_Name_Artist_uniq` IF NOT EXISTS
+FOR (n: `Artist`)
+REQUIRE (n.`Artist Name`) IS UNIQUE;
+CREATE CONSTRAINT `Object_Type_Object_Category_uniq` IF NOT EXISTS
+FOR (n: `Object Category`)
+REQUIRE (n.`Object Type`) IS UNIQUE;
+CREATE CONSTRAINT `Style_Name_Style_uniq` IF NOT EXISTS
+FOR (n: `Style`)
+REQUIRE (n.`Style Name`) IS UNIQUE;
+CREATE CONSTRAINT `Themes_Events_uniq` IF NOT EXISTS
+FOR (n: `Events`)
+REQUIRE (n.`Themes`) IS UNIQUE;
+CREATE CONSTRAINT `Location_Name_Locations_uniq` IF NOT EXISTS
+FOR (n: `Locations`)
+REQUIRE (n.`Location Name`) IS UNIQUE;
+CREATE CONSTRAINT `Character_Name_Character_uniq` IF NOT EXISTS
+FOR (n: `Character`)
+REQUIRE (n.`Character Name`) IS UNIQUE;
+CREATE CONSTRAINT `Place_Name_Place_of Production_uniq` IF NOT EXISTS
+FOR (n: `Place of Production`)
+REQUIRE (n.`Place Name`) IS UNIQUE;
+CREATE CONSTRAINT `Other_Content Details_Other_Content_uniq` IF NOT EXISTS
+FOR (n: `Other Content`)
+REQUIRE (n.`Other Content Details`) IS UNIQUE;
+CREATE CONSTRAINT `Material_Type_Material_uniq` IF NOT EXISTS
+FOR (n: `Material`)
+REQUIRE (n.`Material Type`) IS UNIQUE;
+CREATE CONSTRAINT `Date_Time_uniq` IF NOT EXISTS
+FOR (n: `Time`)
+REQUIRE (n.`Date`) IS UNIQUE;
+CREATE CONSTRAINT `Text_Name_Text_uniq` IF NOT EXISTS
+FOR (n: `Text`)
+REQUIRE (n.`Text Name`) IS UNIQUE;
+CREATE CONSTRAINT `Credit_Line_Acquisition_uniq` IF NOT EXISTS
+FOR (n: `Acquisition`)
+REQUIRE (n.`Credit Line`) IS UNIQUE;
+CREATE CONSTRAINT `Name_of Poem/Prose_Poem/Prose_uniq` IF NOT EXISTS
+FOR (n: `Poem/Prose`)
+REQUIRE (n.`Name of Poem/Prose`) IS UNIQUE;
+CREATE CONSTRAINT `Disestablished_Period_Disestablished_uniq` IF NOT EXISTS
+FOR (n: `Period Disestablished`)
+REQUIRE (n.`Disestablished`) IS UNIQUE;
+CREATE CONSTRAINT `Preceded_by_Preceding_Kingdom_uniq` IF NOT EXISTS
+FOR (n: `Preceding Kingdom`)
+REQUIRE (n.`Preceded by`) IS UNIQUE;
+CREATE CONSTRAINT `Succeeded_by_Succeeding_Kingdom_uniq` IF NOT EXISTS
+FOR (n: `Succeeding Kingdom`)
+REQUIRE (n.`Succeeded by`) IS UNIQUE;
+CREATE CONSTRAINT `Established_Period_Established_uniq` IF NOT EXISTS
+FOR (n: `Period Established`)
+REQUIRE (n.`Established`) IS UNIQUE;
+CREATE CONSTRAINT `King_Ruler_uniq` IF NOT EXISTS
+FOR (n: `Ruler`)
+REQUIRE (n.`King`) IS UNIQUE;
+CREATE CONSTRAINT `Era_Period_uniq` IF NOT EXISTS
+FOR (n: `Period`)
+REQUIRE (n.`Era`) IS UNIQUE;
+CREATE CONSTRAINT `Object_History_Accession_Collection_uniq` IF NOT EXISTS
+FOR (n: `Accession Collection`)
+REQUIRE (n.`Object History`) IS UNIQUE;
+CREATE CONSTRAINT `Reference_Material_Resource_uniq` IF NOT EXISTS
+FOR (n: `Resource`)
+REQUIRE (n.`Reference Material`) IS UNIQUE;
+CREATE CONSTRAINT `Author_Name_Author_uniq` IF NOT EXISTS
+FOR (n: `Author`)
+REQUIRE (n.`Author Name`) IS UNIQUE;
+CREATE CONSTRAINT `Present_Region Name_Present_Region_uniq` IF NOT EXISTS
+FOR (n: `Present Region`)
+REQUIRE (n.`Present Region Name`) IS UNIQUE;
+CREATE CONSTRAINT `Longitude_Coordinate_Longitude_uniq` IF NOT EXISTS
+FOR (n: `Longitude`)
+REQUIRE (n.`Longitude Coordinate`) IS UNIQUE;
+CREATE CONSTRAINT `Latitude_Coordinate_Latitude_uniq` IF NOT EXISTS
+FOR (n: `Latitude`)
+REQUIRE (n.`Latitude Coordinate`) IS UNIQUE;
+CREATE CONSTRAINT `Subject_Categories_Subject_uniq` IF NOT EXISTS
+FOR (n: `Subject`)
+REQUIRE (n.`Subject Categories`) IS UNIQUE;
+
+:param idsToSkip => [];
+
+// NODE load
+// ---------
+//
+// Loading nodes in batches, one node label at a time. Nodes will be created using a MERGE statement to ensure a node with the same label and ID property remains unique. Pre-existing nodes found by a MERGE statement will have their other properties set to the latest values encountered in a load file.
+//
+// NOTE: Any nodes with IDs in the 'idsToSkip' list parameter will not be loaded.
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Painting.csv' AS row
+WITH row
+WHERE NOT row.`Title` IN $idsToSkip AND NOT row.`Title` IS NULL
+MERGE (n: `Painting` { `Title`: row.`Title` })
+SET n.`Title` = row.`Title`,
+    n.`Museum Number` = row.`Museum Number`,
+    n.`Registeration Number` = row.`Registeration Number`,
+    n.`Physical Description` = row.`Physical Description`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Artist.csv' AS row
+WITH row
+WHERE NOT row.`Artist Name` IN $idsToSkip AND NOT row.`Artist Name` IS NULL
+MERGE (n: `Artist` { `Artist Name`: row.`Artist Name` })
+SET n.`Artist Name` = row.`Artist Name`,
+    n.`Gender` = row.`Gender`,
+    n.`Date` = row.`Date`,
+    n.`Artist Details` = row.`Artist Details`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_ObjectCategory.csv' AS row
+WITH row
+WHERE NOT row.`Object Type` IN $idsToSkip AND NOT row.`Object Type` IS NULL
+MERGE (n: `Object Category` { `Object Type`: row.`Object Type` })
+SET n.`Object Type` = row.`Object Type`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Style.csv' AS row
+WITH row
+WHERE NOT row.`Style Name` IN $idsToSkip AND NOT row.`Style Name` IS NULL
+MERGE (n: `Style` { `Style Name`: row.`Style Name` })
+SET n.`Style Name` = row.`Style Name`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Events.csv' AS row
+WITH row
+WHERE NOT row.`Themes` IN $idsToSkip AND NOT row.`Themes` IS NULL
+MERGE (n: `Events` { `Themes`: row.`Themes` })
+SET n.`Themes` = row.`Themes`,
+    n.`Description` = row.`Description`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Locations.csv' AS row
+WITH row
+WHERE NOT row.`Location Name` IN $idsToSkip AND NOT row.`Location Name` IS NULL
+MERGE (n: `Locations` { `Location Name`: row.`Location Name` })
+SET n.`Location Name` = row.`Location Name`,
+    n.`Description` = row.`Description`,
+    n.`Present Region Details` = row.`Present Region Details`,
+    n.`Details` = row.`Details`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Characters.csv' AS row
+WITH row
+WHERE NOT row.`Character Name` IN $idsToSkip AND NOT row.`Character Name` IS NULL
+MERGE (n: `Character` { `Character Name`: row.`Character Name` })
+SET n.`Character Name` = row.`Character Name`,
+    n.`Gender of Content Person` = row.`Gender of Content Person`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_PlaceofProduction.csv' AS row
+WITH row
+WHERE NOT row.`Place Name` IN $idsToSkip AND NOT row.`Place Name` IS NULL
+MERGE (n: `Place of Production` { `Place Name`: row.`Place Name` })
+SET n.`Place Name` = row.`Place Name`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_OtherContent.csv' AS row
+WITH row
+WHERE NOT row.`Other Content Details` IN $idsToSkip AND NOT row.`Other Content Details` IS NULL
+MERGE (n: `Other Content` { `Other Content Details`: row.`Other Content Details` })
+SET n.`Other Content Details` = row.`Other Content Details`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Material.csv' AS row
+WITH row
+WHERE NOT row.`Material Type` IN $idsToSkip AND NOT row.`Material Type` IS NULL
+MERGE (n: `Material` { `Material Type`: row.`Material Type` })
+SET n.`Material Type` = row.`Material Type`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Time.csv' AS row
+WITH row
+WHERE NOT row.`Date` IN $idsToSkip AND NOT row.`Date` IS NULL
+MERGE (n: `Time` { `Date`: row.`Date` })
+SET n.`Date` = row.`Date`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Text.csv' AS row
+WITH row
+WHERE NOT row.`Text Name` IN $idsToSkip AND NOT row.`Text Name` IS NULL
+MERGE (n: `Text` { `Text Name`: row.`Text Name` })
+SET n.`Text Name` = row.`Text Name`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Acquisition.csv' AS row
+WITH row
+WHERE NOT row.`Credit Line` IN $idsToSkip AND NOT row.`Credit Line` IS NULL
+MERGE (n: `Acquisition` { `Credit Line`: row.`Credit Line` })
+SET n.`Credit Line` = row.`Credit Line`,
+    n.`Acquisition Notes` = row.`Acquisition Notes`,
+    n.`Acquisition Details` = row.`Acquisition Details`,
+    n.`Acquisition Date` = toInteger(trim(row.`Acquisition Date`)),
+    n.`Condition` = row.`Condition`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_PoemorProse.csv' AS row
+WITH row
+WHERE NOT row.`Name of Poem/Prose` IN $idsToSkip AND NOT row.`Name of Poem/Prose` IS NULL
+MERGE (n: `Poem/Prose` { `Name of Poem/Prose`: row.`Name of Poem/Prose` })
+SET n.`Name of Poem/Prose` = row.`Name of Poem/Prose`,
+    n.`Written During` = row.`Written During`,
+    n.`Name of Poet/Writer` = row.`Name of Poet/Writer`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Locations.csv' AS row
+WITH row
+WHERE NOT row.`Disestablished` IN $idsToSkip AND NOT row.`Disestablished` IS NULL
+MERGE (n: `Period Disestablished` { `Disestablished`: row.`Disestablished` })
+SET n.`Disestablished` = row.`Disestablished`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Locations.csv' AS row
+WITH row
+WHERE NOT row.`Preceded by` IN $idsToSkip AND NOT row.`Preceded by` IS NULL
+MERGE (n: `Preceding Kingdom` { `Preceded by`: row.`Preceded by` })
+SET n.`Preceded by` = row.`Preceded by`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Locations.csv' AS row
+WITH row
+WHERE NOT row.`Succeeded by` IN $idsToSkip AND NOT row.`Succeeded by` IS NULL
+MERGE (n: `Succeeding Kingdom` { `Succeeded by`: row.`Succeeded by` })
+SET n.`Succeeded by` = row.`Succeeded by`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Locations.csv' AS row
+WITH row
+WHERE NOT row.`Established` IN $idsToSkip AND NOT row.`Established` IS NULL
+MERGE (n: `Period Established` { `Established`: row.`Established` })
+SET n.`Established` = row.`Established`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Text.csv' AS row
+WITH row
+WHERE NOT row.`King` IN $idsToSkip AND NOT row.`King` IS NULL
+MERGE (n: `Ruler` { `King`: row.`King` })
+SET n.`King` = row.`King`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Text.csv' AS row
+WITH row
+WHERE NOT row.`Era` IN $idsToSkip AND NOT row.`Era` IS NULL
+MERGE (n: `Period` { `Era`: row.`Era` })
+SET n.`Era` = row.`Era`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Acquisition.csv' AS row
+WITH row
+WHERE NOT row.`Object History` IN $idsToSkip AND NOT row.`Object History` IS NULL
+MERGE (n: `Accession Collection` { `Object History`: row.`Object History` })
+SET n.`Object History` = row.`Object History`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Acquisition.csv' AS row
+WITH row
+WHERE NOT row.`Reference Material` IN $idsToSkip AND NOT row.`Reference Material` IS NULL
+MERGE (n: `Resource` { `Reference Material`: row.`Reference Material` })
+SET n.`Reference Material` = row.`Reference Material`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Acquisition.csv' AS row
+WITH row
+WHERE NOT row.`Author Name` IN $idsToSkip AND NOT row.`Author Name` IS NULL
+MERGE (n: `Author` { `Author Name`: row.`Author Name` })
+SET n.`Author Name` = row.`Author Name`,
+    n.`Publisher` = row.`Publisher`,
+    n.`Date of Publication` = toInteger(trim(row.`Date of Publication`));
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_PresentRegion.csv' AS row
+WITH row
+WHERE NOT row.`Present Region Name` IN $idsToSkip AND NOT row.`Present Region Name` IS NULL
+MERGE (n: `Present Region` { `Present Region Name`: row.`Present Region Name` })
+SET n.`Present Region Name` = row.`Present Region Name`;
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_PresentRegion.csv' AS row
+WITH row
+WHERE NOT row.`Longitude Coordinate` IN $idsToSkip AND NOT toFloat(trim(row.`Longitude Coordinate`)) IS NULL
+MERGE (n: `Longitude` { `Longitude Coordinate`: toFloat(trim(row.`Longitude Coordinate`)) })
+SET n.`Longitude Coordinate` = toFloat(trim(row.`Longitude Coordinate`));
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_PresentRegion.csv' AS row
+WITH row
+WHERE NOT row.`Latitude Coordinate` IN $idsToSkip AND NOT toFloat(trim(row.`Latitude Coordinate`)) IS NULL
+MERGE (n: `Latitude` { `Latitude Coordinate`: toFloat(trim(row.`Latitude Coordinate`)) })
+SET n.`Latitude Coordinate` = toFloat(trim(row.`Latitude Coordinate`));
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Subject.csv' AS row
+WITH row
+WHERE NOT row.`Subject Categories` IN $idsToSkip AND NOT row.`Subject Categories` IS NULL
+MERGE (n: `Subject` { `Subject Categories`: row.`Subject Categories` })
+SET n.`Subject Categories` = row.`Subject Categories`;
+
+// RELATIONSHIP load
+// -----------------
+//
+// Load relationships in batches, one relationship type at a time. Relationships are created using a MERGE statement, meaning only one relationship of a given type will ever be created between a pair of nodes.
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Artist.csv' AS row
+WITH row
+MATCH (source:`Painting`{`Title`: row.`Title`})
+MATCH (target:`Artist`{`Artist Name`: row.`Artist Name`})
+MERGE (source)-[r:`Created By`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_ObjectCategory.csv' AS row
+WITH row
+MATCH (source:`Painting`{`Title`: row.`Title`})
+MATCH (target:`Object Category`{`Object Type`: row.`Object Type`})
+MERGE (source)-[r:`Belongs to`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Style.csv' AS row
+WITH row
+MATCH (source:`Painting`{`Title`: row.`Title`})
+MATCH (target:`Style`{`Style Name`: row.`Style Name`})
+MERGE (source)-[r:`Has Style`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Events.csv' AS row
+WITH row
+MATCH (source:`Painting`{`Title`: row.`Title`})
+MATCH (target:`Events`{`Themes`: row.`Themes`})
+MERGE (source)-[r:`Describes`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Locations.csv' AS row
+WITH row
+MATCH (source:`Painting`{`Title`: row.`Title`})
+MATCH (target:`Locations`{`Location Name`: row.`Location Name`})
+MERGE (source)-[r:`Has Locations`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Characters.csv' AS row
+WITH row
+MATCH (source:`Painting`{`Title`: row.`Title`})
+MATCH (target:`Character`{`Character Name`: row.`Character Name`})
+MERGE (source)-[r:`Depicts`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_PlaceofProduction.csv' AS row
+WITH row
+MATCH (source:`Painting`{`Title`: row.`Title`})
+MATCH (target:`Place of Production`{`Place Name`: row.`Place Name`})
+MERGE (source)-[r:`Produced In`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_OtherContent.csv' AS row
+WITH row
+MATCH (source:`Painting`{`Title`: row.`Title`})
+MATCH (target:`Other Content`{`Other Content Details`: row.`Other Content Details`})
+MERGE (source)-[r:`Has elements`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Material.csv' AS row
+WITH row
+MATCH (source:`Painting`{`Title`: row.`Title`})
+MATCH (target:`Material`{`Material Type`: row.`Material Type`})
+MERGE (source)-[r:`Is Made With`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Time.csv' AS row
+WITH row
+MATCH (source:`Painting`{`Title`: row.`Title`})
+MATCH (target:`Time`{`Date`: row.`Date`})
+MERGE (source)-[r:`Created In`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Text.csv' AS row
+WITH row
+MATCH (source:`Painting`{`Title`: row.`Title`})
+MATCH (target:`Text`{`Text Name`: row.`Text Name`})
+MERGE (source)-[r:`Refers To`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Acquisition.csv' AS row
+WITH row
+MATCH (source:`Painting`{`Title`: row.`Title`})
+MATCH (target:`Acquisition`{`Credit Line`: row.`Credit Line`})
+MERGE (source)-[r:`Acquired/Given By`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Characters.csv' AS row
+WITH row
+MATCH (source:`Locations`{`Location Name`: row.`Location Name`})
+MATCH (target:`Character`{`Character Name`: row.`Character Name`})
+MERGE (source)-[r:`Relates to`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_PoemorProse.csv' AS row
+WITH row
+MATCH (source:`Painting`{`Title`: row.`Title`})
+MATCH (target:`Poem/Prose`{`Name of Poem/Prose`: row.`Name of Poem/Prose`})
+MERGE (source)-[r:`Pertains to`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Locations.csv' AS row
+WITH row
+MATCH (source:`Locations`{`Location Name`: row.`Location Name`})
+MATCH (target:`Period Disestablished`{`Disestablished`: row.`Disestablished`})
+MERGE (source)-[r:`Was Disestablished circa`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Locations.csv' AS row
+WITH row
+MATCH (source:`Locations`{`Location Name`: row.`Location Name`})
+MATCH (target:`Preceding Kingdom`{`Preceded by`: row.`Preceded by`})
+MERGE (source)-[r:`Was Preceded By Kingdom`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Locations.csv' AS row
+WITH row
+MATCH (source:`Locations`{`Location Name`: row.`Location Name`})
+MATCH (target:`Succeeding Kingdom`{`Succeeded by`: row.`Succeeded by`})
+MERGE (source)-[r:`Was Succeeded By Kingdom`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Locations.csv' AS row
+WITH row
+MATCH (source:`Locations`{`Location Name`: row.`Location Name`})
+MATCH (target:`Period Established`{`Established`: row.`Established`})
+MERGE (source)-[r:`Was Established circa`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Text.csv' AS row
+WITH row
+MATCH (source:`Text`{`Text Name`: row.`Text Name`})
+MATCH (target:`Ruler`{`King`: row.`King`})
+MERGE (source)-[r:`Commissioned by`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Text.csv' AS row
+WITH row 
+MATCH (source: `Ruler` { `King`: row.`King` })
+MATCH (target: `Period` { `Era`: row.`Era` })
+MERGE (source)-[r: `Ruled during`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Artist.csv' AS row
+WITH row 
+MATCH (source: `Artist` { `Artist Name`: row.`Artist Name` })
+MATCH (target: `Time` { `Date`: row.`Date` })
+MERGE (source)-[r: `Lived during`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Acquisition.csv' AS row
+WITH row 
+MATCH (source: `Acquisition` { `Credit Line`: row.`Credit Line` })
+MATCH (target: `Accession Collection` { `Object History`: row.`Object History` })
+MERGE (source)-[r: `Within Accession collection`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Acquisition.csv' AS row
+WITH row 
+MATCH (source: `Painting` { `Title`: row.`Title` })
+MATCH (target: `Resource` { `Reference Material`: row.`Reference Material` })
+MERGE (source)-[r: `Cited in`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Acquisition.csv' AS row
+WITH row 
+MATCH (source: `Resource` { `Reference Material`: row.`Reference Material` })
+MATCH (target: `Author` { `Author Name`: row.`Author Name` })
+MERGE (source)-[r: `Has Author`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Events.csv' AS row
+WITH row 
+MATCH (source: `Events` { `Themes`: row.`Themes` })
+MATCH (target: `Poem/Prose` { `Name of Poem/Prose`: row.`Name of Poem` })
+MERGE (source)-[r: `Mentioned In`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Text.csv' AS row
+WITH row 
+MATCH (source: `Place of Production` { `Place Name`: row.`Place Name` })
+MATCH (target: `Ruler` { `King`: row.`King` })
+MERGE (source)-[r: `Ruled by`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Material.csv' AS row
+WITH row 
+MATCH (source: `Material` { `Material Type`: row.`Material Type` })
+MATCH (target: `Style` { `Style Name`: row.`Style Name` })
+MERGE (source)-[r: `Identified In`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_PresentRegion.csv' AS row
+WITH row 
+MATCH (source: `Locations` { `Location Name`: row.`Location Name` })
+MATCH (target: `Present Region` { `Present Region Name`: row.`Present Region Name` })
+MERGE (source)-[r: `Currently part of`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_PresentRegion.csv' AS row
+WITH row 
+MATCH (source: `Place of Production` { `Place Name`: row.`Place Name` })
+MATCH (target: `Present Region` { `Present Region Name`: row.`Present Region Name` })
+MERGE (source)-[r: `Is Present Day`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Artist.csv' AS row
+WITH row 
+MATCH (source: `Artist` { `Artist Name`: row.`Artist Name` })
+MATCH (target: `Place of Production` { `Place Name`: row.`Place Name` })
+MERGE (source)-[r: `Worked In`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Style.csv' AS row
+WITH row 
+MATCH (source: `Style` { `Style Name`: row.`Style Name` })
+MATCH (target: `Place of Production` { `Place Name`: row.`Place Name` })
+MERGE (source)-[r: `Is Popular In`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Artist.csv' AS row
+WITH row 
+MATCH (source: `Artist` { `Artist Name`: row.`Artist Name` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Has created`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Time.csv' AS row
+WITH row 
+MATCH (source: `Time` { `Date`: row.`Date` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Was Created in`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_PlaceofProduction.csv' AS row
+WITH row 
+MATCH (source: `Place of Production` { `Place Name`: row.`Place Name` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Has Produced`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Text.csv' AS row
+WITH row 
+MATCH (source: `Ruler` { `King`: row.`King` })
+MATCH (target: `Place of Production` { `Place Name`: row.`Place Name` })
+MERGE (source)-[r: `Ruled over`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_PresentRegion.csv' AS row
+WITH row 
+MATCH (source: `Present Region` { `Present Region Name`: row.`Present Region Name` })
+MATCH (target: `Place of Production` { `Place Name`: row.`Place Name` })
+MERGE (source)-[r: `Previously was`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Locations.csv' AS row
+WITH row 
+MATCH (source: `Locations` { `Location Name`: row.`Location Name` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Locations in`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Characters.csv' AS row
+WITH row 
+MATCH (source: `Character` { `Character Name`: row.`Character Name` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Is Depicted In`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Style.csv' AS row
+WITH row
+MATCH (source: `Style` { `Style Name`: row.`Style Name` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Is Represented In`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_ObjectCategory.csv' AS row
+WITH row
+MATCH (source: `Object Category` { `Object Type`: row.`Object Type` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Has work`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Events.csv' AS row
+WITH row
+MATCH (source: `Events` { `Themes`: row.`Themes` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Is Described In`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Acquisition.csv' AS row
+WITH row
+MATCH (source: `Acquisition` { `Credit Line`: row.`Credit Line` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Includes`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Material.csv' AS row
+WITH row
+MATCH (source: `Material` { `Material Type`: row.`Material Type` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Is Used in`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Text.csv' AS row
+WITH row
+MATCH (source: `Period` { `Era`: row.`Era` })
+MATCH (target: `Ruler` { `King`: row.`King` })
+MERGE (source)-[r: `Had Ruler`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_OtherContent.csv' AS row
+WITH row
+MATCH (source: `Other Content` { `Other Content Details`: row.`Other Content Details` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Appear in`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Text.csv' AS row
+WITH row
+MATCH (source: `Ruler` { `King`: row.`King` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Commissioned`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Text.csv' AS row
+WITH row
+MATCH (source: `Painting` { `Title`: row.`Title` })
+MATCH (target: `Period` { `Era`: row.`Era` })
+MERGE (source)-[r: `Was Commissioned During`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_PresentRegion.csv' AS row
+WITH row
+MATCH (source: `Painting` { `Title`: row.`Title` })
+MATCH (target: `Present Region` { `Present Region Name`: row.`Present Region Name` })
+MERGE (source)-[r: `Has Present Day area`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_PresentRegion.csv' AS row
+WITH row
+MATCH (source: `Present Region` { `Present Region Name`: row.`Present Region Name` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Has connection`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Characters.csv' AS row
+WITH row
+MATCH (source: `Character` { `Character Name`: row.`Character Name` })
+MATCH (target: `Locations` { `Location Name`: row.`Location Name` })
+MERGE (source)-[r: `Is Related to`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Locations.csv' AS row
+WITH row
+MATCH (source: `Period Disestablished` { `Disestablished`: row.`Disestablished` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Associated Locations Disestablishment`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Locations.csv' AS row
+WITH row
+MATCH (source: `Preceding Kingdom` { `Preceded by`: row.`Preceded by` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Associated Locations Preceded by`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Locations.csv' AS row
+WITH row
+MATCH (source: `Succeeding Kingdom` { `Succeeded by`: row.`Succeeded by` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Associated Locations Succeeded by`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Locations.csv' AS row
+WITH row
+MATCH (source: `Period Established` { `Established`: row.`Established` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Associated Locations Establishment`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Text.csv' AS row
+WITH row
+MATCH (source: `Text` { `Text Name`: row.`Text Name` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Is in Reference to`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_PoemorProse.csv' AS row
+WITH row
+MATCH (source: `Poem/Prose` { `Name of Poem/Prose`: row.`Name of Poem/Prose` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Relevant to`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Text.csv' AS row
+WITH row
+MATCH (source: `Period` { `Era`: row.`Era` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Features`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Text.csv' AS row
+WITH row
+MATCH (source: `Painting` { `Title`: row.`Title` })
+MATCH (target: `Ruler` { `King`: row.`King` })
+MERGE (source)-[r: `Commissioned`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Characters.csv' AS row
+WITH row
+MATCH (source: `Character` { `Character Name`: row.`Character Name` })
+MATCH (target: `Poem/Prose` { `Name of Poem/Prose`: row.`Name of Poem/Prose` })
+MERGE (source)-[r: `Is Present In`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_PresentRegion.csv' AS row
+WITH row
+MATCH (source: `Present Region` { `Present Region Name`: row.`Present Region Name` })
+MATCH (target: `Longitude` { `Longitude Coordinate`: toFloat(trim(row.`Longitude Coordinate`)) })
+MERGE (source)-[r: `Has Longitude`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_PresentRegion.csv' AS row
+WITH row
+MATCH (source: `Present Region` { `Present Region Name`: row.`Present Region Name` })
+MATCH (target: `Latitude` { `Latitude Coordinate`: toFloat(trim(row.`Latitude Coordinate`)) })
+MERGE (source)-[r: `Has Latitude`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Style.csv' AS row
+WITH row
+MATCH (source: `Artist` { `Artist Name`: row.`Artist Name` })
+MATCH (target: `Style` { `Style Name`: row.`Style Name` })
+MERGE (source)-[r: `Is known for`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Text.csv' AS row
+WITH row
+MATCH (source: `Text` { `Text Name`: row.`Text Name` })
+MATCH (target: `Poem/Prose` { `Name of Poem/Prose`: row.`Name of Poem/Prose` })
+MERGE (source)-[r: `Manuscript has `]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Style.csv' AS row
+WITH row
+MATCH (source: `Style` { `Style Name`: row.`Style Name` })
+MATCH (target: `Artist` { `Artist Name`: row.`Artist Name` })
+MERGE (source)-[r: `Found in work by`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Material.csv' AS row
+WITH row
+MATCH (source: `Style` { `Style Name`: row.`Style Name` })
+MATCH (target: `Material` { `Material Type`: row.`Material Type` })
+MERGE (source)-[r: `Uses Material`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Text.csv' AS row
+WITH row
+MATCH (source: `Poem/Prose` { `Name of Poem/Prose`: row.`Name of Poem/Prose` })
+MATCH (target: `Text` { `Text Name`: row.`Text Name` })
+MERGE (source)-[r: `Illustrated In Manuscript`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Characters.csv' AS row
+WITH row
+MATCH (source: `Poem/Prose` { `Name of Poem/Prose`: row.`Name of Poem/Prose` })
+MATCH (target: `Character` { `Character Name`: row.`Character Name` })
+MERGE (source)-[r: `Portrays`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Subject.csv' AS row
+WITH row
+MATCH (source: `Painting` { `Title`: row.`Title` })
+MATCH (target: `Subject` { `Subject Categories`: row.`Subject Categories` })
+MERGE (source)-[r: `Has Subject`]->(target);
+
+LOAD CSV WITH HEADERS FROM 'http://localhost:11001/project-ea8d4453-9c0b-443e-b6b2-a59a077e994d/Sample_Subject.csv' AS row
+WITH row
+MATCH (source: `Subject` { `Subject Categories`: row.`Subject Categories` })
+MATCH (target: `Painting` { `Title`: row.`Title` })
+MERGE (source)-[r: `Topics In`]->(target);
